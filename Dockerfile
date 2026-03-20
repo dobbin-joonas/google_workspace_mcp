@@ -37,8 +37,8 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD sh -c 'curl -f http://localhost:${PORT:-8000}/health || exit 1'
 
 # Set environment variables for Python startup args
-ENV TOOL_TIER=""
-ENV TOOLS=""
+ENV TOOL_TIER="extended"
+ENV TOOLS="gmail drive calendar docs sheets tasks contacts chat"
 
 # Use entrypoint for the base command and CMD for args
 ENTRYPOINT ["/bin/sh", "-c"]
