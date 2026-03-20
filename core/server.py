@@ -417,6 +417,9 @@ def configure_server_for_http():
                     resource_server_url=config.get_oauth_base_url(),
                 )
 
+                # Enable protocol-level auth for external provider
+                server.auth = provider
+
                 logger.info("OAuth 2.1 enabled with EXTERNAL provider mode")
                 logger.info(
                     "Expecting Authorization bearer tokens in tool call headers"
