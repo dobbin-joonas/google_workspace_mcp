@@ -38,7 +38,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
 
 # Set environment variables for Python startup args
 ENV TOOL_TIER="extended"
-ENV TOOLS="gmail drive calendar docs sheets tasks contacts chat"
+ENV TOOLS="gmail drive calendar tasks contacts chat"
 
 # Use entrypoint for the base command and CMD for args
 ENTRYPOINT ["/bin/sh", "-c"]
