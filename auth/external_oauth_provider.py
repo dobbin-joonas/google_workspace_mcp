@@ -100,11 +100,13 @@ class ExternalOAuthProvider(GoogleProvider):
         Returns:
             AccessToken object if valid, None otherwise
         """
+        scope_list = list(getattr(self, "required_scopes", []) or [])
+
         # If it's our injected dummy token, allow it through without user claims
         if token == "unauthenticated_discovery_token":
             return AccessToken(
                 token=token,
-                scopes=[],
+                scopes=scope_list,
                 expires_at=int(time.time()) + 3600,
                 claims={},
                 client_id=self._client_id
@@ -159,7 +161,7 @@ class ExternalOAuthProvider(GoogleProvider):
             # JSON-RPC error "requires an authenticated user" to be returned gracefully.
             return AccessToken(
                 token=token,
-                scopes=[],
+                scopes=scope_list,
                 expires_at=int(time.time()) + 3600,
                 claims={},
                 client_id=self._client_id
@@ -170,7 +172,7 @@ class ExternalOAuthProvider(GoogleProvider):
         if result is None:
             return AccessToken(
                 token=token,
-                scopes=[],
+                scopes=scope_list,
                 expires_at=int(time.time()) + 3600,
                 claims={},
                 client_id=self._client_id
