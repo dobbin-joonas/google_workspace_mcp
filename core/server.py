@@ -41,6 +41,23 @@ _legacy_callback_registered = False
 session_middleware = Middleware(MCPSessionMiddleware)
 
 
+class AuthRescueMiddleware:
+    """Ensures FastMCP doesn't block unauthenticated requests with HTTP 401s in external provider mode."""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] in ("http", "websocket") and is_external_oauth21_provider():
+            headers = MutableHeaders(scope=scope)
+            if not headers.get("authorization"):
+                headers["authorization"] = "Bearer unauthenticated_discovery_token"
+        await self.app(scope, receive, send)
+
+
+auth_rescue_middleware = Middleware(AuthRescueMiddleware)
+
+
 class WellKnownCacheControlMiddleware:
     """Force no-cache headers for OAuth well-known discovery endpoints."""
 
@@ -89,14 +106,15 @@ class SecureFastMCP(FastMCP):
         app = super().http_app(**kwargs)
 
         # Add middleware in order (first added = outermost layer)
-        app.user_middleware.insert(0, well_known_cache_control_middleware)
+        app.user_middleware.insert(0, auth_rescue_middleware)
+        app.user_middleware.insert(1, well_known_cache_control_middleware)
 
         # Session Management - extracts session info for MCP context
-        app.user_middleware.insert(1, session_middleware)
+        app.user_middleware.insert(2, session_middleware)
 
         # Rebuild middleware stack
         app.middleware_stack = app.build_middleware_stack()
-        logger.info("Added middleware stack: WellKnownCacheControl, Session Management")
+        logger.info("Added middleware stack: AuthRescue, WellKnownCacheControl, Session Management")
         return app
 
 

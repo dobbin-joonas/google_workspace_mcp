@@ -100,6 +100,15 @@ class ExternalOAuthProvider(GoogleProvider):
         Returns:
             AccessToken object if valid, None otherwise
         """
+        # If it's our injected dummy token, allow it through without user claims
+        if token == "unauthenticated_discovery_token":
+            return AccessToken(
+                token=token,
+                scopes=[],
+                expires_at=int(time.time()) + 3600,
+                claims={}
+            )
+
         # For ya29.* access tokens, validate using Google's userinfo API
         if token.startswith("ya29."):
             logger.debug("Validating external Google OAuth access token")
@@ -141,14 +150,29 @@ class ExternalOAuthProvider(GoogleProvider):
                     return access_token
                 else:
                     logger.error("Could not get user info from access token")
-                    return None
-
             except Exception as e:
                 logger.error(f"Error validating external access token: {e}")
-                return None
+
+            # If validation fails (e.g. expired), return a token with NO claims.
+            # This prevents FastMCP from throwing a hard HTTP 401, allowing the
+            # JSON-RPC error "requires an authenticated user" to be returned gracefully.
+            return AccessToken(
+                token=token,
+                scopes=[],
+                expires_at=int(time.time()) + 3600,
+                claims={}
+            )
 
         # For JWT tokens, use parent class implementation
-        return await super().verify_token(token)
+        result = await super().verify_token(token)
+        if result is None:
+            return AccessToken(
+                token=token,
+                scopes=[],
+                expires_at=int(time.time()) + 3600,
+                claims={}
+            )
+        return result
 
     def get_routes(self, **kwargs) -> list[Route]:
         """
