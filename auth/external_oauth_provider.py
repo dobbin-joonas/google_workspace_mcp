@@ -106,7 +106,8 @@ class ExternalOAuthProvider(GoogleProvider):
                 token=token,
                 scopes=[],
                 expires_at=int(time.time()) + 3600,
-                claims={}
+                claims={},
+                client_id=self._client_id
             )
 
         # For ya29.* access tokens, validate using Google's userinfo API
@@ -160,7 +161,8 @@ class ExternalOAuthProvider(GoogleProvider):
                 token=token,
                 scopes=[],
                 expires_at=int(time.time()) + 3600,
-                claims={}
+                claims={},
+                client_id=self._client_id
             )
 
         # For JWT tokens, use parent class implementation
@@ -170,7 +172,8 @@ class ExternalOAuthProvider(GoogleProvider):
                 token=token,
                 scopes=[],
                 expires_at=int(time.time()) + 3600,
-                claims={}
+                claims={},
+                client_id=self._client_id
             )
         return result
 
