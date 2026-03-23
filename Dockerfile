@@ -38,8 +38,8 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
 
 # Set environment variables for Python startup args
 ENV TOOL_TIER="extended"
-ENV TOOLS="gmail drive calendar tasks contacts chat"
+ENV PERMISSIONS="gmail:full drive:readonly calendar:full tasks:full contacts:full chat:full"
 
 # Use entrypoint for the base command and CMD for args
 ENTRYPOINT ["/bin/sh", "-c"]
-CMD ["uv run main.py --transport streamable-http ${TOOL_TIER:+--tool-tier \"$TOOL_TIER\"} ${TOOLS:+--tools $TOOLS}"]
+CMD ["uv run main.py --transport streamable-http ${TOOL_TIER:+--tool-tier \"$TOOL_TIER\"} ${PERMISSIONS:+--permissions $PERMISSIONS}"]
